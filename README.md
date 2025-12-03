@@ -29,7 +29,7 @@ This repository contains all configurations and screenshots for building:
 
 Architecture Includes:
 
-VPC A (Primary VPC):
+🔶 VPC A (Primary VPC):
 
 * Custom VPC
 
@@ -91,71 +91,138 @@ Services Used:
 
 Step-by-Step Workflow:
 
-1️⃣ Create a Custom VPC:
+1️⃣ Build VPC A (Main VPC):
 
-*Choose IPv4 CIDR (example: 10.0.0.0/16)
+*CIDR: 10.0.0.0/16
 
-*Enable DNS hostnames + DNS resolution.
+*Create  public +  private subnets
+
+*Attach Internet Gateway
+
+*Create NAT Gateway
+
+*Configure Route Tables
+
+*Launch EC2 instances.
+
+2️⃣ Build VPC B (Peering VPC):
+
+*CIDR: 20.0.0.0/16
+
+*Create subnets
+
+*Launch one EC2 instance
+
+*Configure its security group.
+
+<img width="1366" height="662" alt="vpc" src="https://github.com/user-attachments/assets/2077418a-10c9-47db-a918-0b2907ccddb8" />
 
 
+<img width="1366" height="662" alt="subnet" src="https://github.com/user-attachments/assets/2053b209-86ca-41b8-853b-cade0b8882c4" />
 
-2️⃣ Create Public and Private Subnets:
 
-*2 public subnets (e.g., 10.0.1.0/24, 10.0.2.0/24)
+<img width="1366" height="662" alt="vpc_ec2" src="https://github.com/user-attachments/assets/8595e294-66e8-4509-939e-abbb93193458" />
 
-*2 private subnets (e.g., 10.0.3.0/24, 10.0.4.0/24)
 
-*Spread them across multiple availability zones for high availability.
+<img width="1366" height="662" alt="vpc_testmap1" src="https://github.com/user-attachments/assets/310d6d0c-bffd-41bb-b287-56551fb2e305" />
 
-3️⃣ Attach an Internet Gateway:
 
-*Create IGW
+<img width="1366" height="662" alt="prod_map1" src="https://github.com/user-attachments/assets/85102dec-7fec-42e4-a608-be6b947caf1a" />
 
-*Attach to VPC
 
-*Update public route table to route 0.0.0.0/0 → IGW.
+<img width="1366" height="662" alt="igw" src="https://github.com/user-attachments/assets/9cc45d2c-3842-4c7a-895b-113c1e8a777c" />
 
-4️⃣ Create NAT Gateway:
 
-*Allocate Elastic IP
+3️⃣ Create VPC Peering Connection:
 
-*Place NAT Gateway in a public subnet
+Steps:
 
-*Update private route table:
-0.0.0.0/0 → NAT Gateway
+1) Go to VPC Dashboard → Peering Connections
 
-5️⃣ Launch EC2 Instances:
+2) Create a new peering connection
 
-*Public instance → accessible via SSH
+3) Select:
 
-*Private instance → accessible only through public instance.
+*Requester VPC: VPC A
 
-6️⃣ Configure Security Groups:
+*Accepter VPC: VPC B
 
-*Allow SSH only from specific sources
+4) Accept the peering request
 
-*Restrict all private subnet access to internal communication only.
+5) Verify connection status → Active.
 
-Testing the Setup:
+<img width="1366" height="662" alt="vpc_peering" src="https://github.com/user-attachments/assets/e94543e8-4923-445e-bf69-562196a2d461" />
 
-* SSH into the public instance using key pair.
+
+4️⃣ Update Route Tables for Peering:
+
+1) In VPC A Route Tables:
+
+Add route →
+
+*Destination: 20.0.0.0/16
+
+*Target: PeeringConnectionID
+
+2) In VPC B Route Tables:
+
+Add route →
+
+*Destination: 10.0.0.0/16
+
+*Target: PeeringConnectionID
+
+<img width="1366" height="662" alt="routetables" src="https://github.com/user-attachments/assets/0028a1b0-ce71-4600-a5c1-bcd50f2d5772" />
+
+
+5️⃣ Update Security Groups:
+
+Allow inter-VPC communication:
+
+* In VPC A EC2 SG → Allow inbound traffic from 20.0.0.0/16
+
+* In VPC B EC2 SG → Allow inbound traffic from 10.0.0.0/16
+
+
+<img width="1366" height="662" alt="ec2rules" src="https://github.com/user-attachments/assets/69256b2d-a211-4ec1-9be2-1c9bfa10b96e" />
+
+<img width="1366" height="662" alt="ec2rulesprod" src="https://github.com/user-attachments/assets/5d827883-b844-4715-8ea0-1417ac4206c8" />
+
+
+6️⃣ Test VPC Peering:
+
+* SSH into EC2 instance in VPC A
   
-* From the public instance, SSH into the private instance.
+* Ping the VPC B EC2 private IP
   
-* Verify internet access from private instance (via NAT Gateway).
+* SSH from VPC A instance → VPC B instance (if allowed)
+  
+* Validate successful inter-VPC communication.
+
+
+<img width="1366" height="662" alt="testping" src="https://github.com/user-attachments/assets/2edc5995-199a-4d90-a963-1af1b5b00ef6" />
+
+<img width="1366" height="662" alt="prodping" src="https://github.com/user-attachments/assets/1703f7ca-5227-45da-9a05-57570015dd4f" />
+
 
 Learning Outcomes:
 
-*Deep understanding of AWS networking.
+By completing this project, I learned:
 
-*Designing VPC architectures manually.
+*VPC design in AWS
 
-*Hands-on with routing, IGWs, NAT Gateways.
+*Public vs private subnets
 
-*Working with public vs private subnets.
+*Internet and NAT gateway configuration
 
-*Secure deployment of EC2 instances.
+*Route table management
 
-*Configuring network-level security.
+*Security group architecture
 
+*EC2 networking basics
 
+*Cross-VPC connectivity using peering
+
+*CIDR segmentation and IP planning
+
+This project significantly strengthened my understanding of AWS networking fundamentals.
