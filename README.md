@@ -225,4 +225,5 @@ By completing this project, I learned:
 
 *CIDR segmentation and IP planning
 
+
 This project significantly strengthened my understanding of AWS networking fundamentals.
